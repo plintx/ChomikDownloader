@@ -1,8 +1,6 @@
 # Chomyk / ChomikDownloader
 
-
-Skrypt został napisany w Pythonie 3.5.2 i służy do pobierania plików z Chomikuj.pl
-Pliki pobierane są do katalogu, w którym znajduje się skrypt.
+Skrypt został napisany w Pythonie 3.5.2 i służy do pobierania plików z Chomikuj.pl  
 
 Dostępne parametry:  
  * __-u__ użytkownik  
