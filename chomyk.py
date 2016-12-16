@@ -25,6 +25,7 @@ class Item(threading.Thread):
 		self.url = ''
 		self.num = 1
 		self.status = 'open'
+		self.directory = ""
 		self.progress = None
 		
 	def getProgress(self):
@@ -35,7 +36,7 @@ class Item(threading.Thread):
 			
 	def run(self):
 		self.status = 'inprogress'
-		path = os.getcwd()+'/'+self.name
+		path = self.directory+'/'+self.name
 		try:
 			file_size = os.path.getsize(path)
 		except:
@@ -66,7 +67,7 @@ class Item(threading.Thread):
 			
 class Chomyk:
 
-	def __init__(self, username, password,maxThreads):
+	def __init__(self, username, password,maxThreads,directory):
 		self.logger = logging.getLogger(__name__)
 		self.isLogged = True
 		self.lastLoginTime = 0
@@ -75,6 +76,7 @@ class Chomyk:
 		self.items = 0
 		self.threads = []
 		self.maxThreads = int(maxThreads)
+		self.directory = directory
 		self.threadsChecker = None
 		self.totalItems = 0
 		self.username = username
@@ -329,6 +331,7 @@ class Chomyk:
 						self.items = self.items +1
 						it = Item()
 						it.id = idx
+						it.directory = self.directory
 						it.num = self.items
 						it.url = url.text
 						it.name = dlfile.find('{http://chomikuj.pl/}name').text
@@ -342,8 +345,9 @@ def main(argv):
 	username = ''
 	password = ''
 	threads = 5
+	directory = os.getcwd()+"/"
 	try:
-		opts, args = getopt.getopt(argv,"h:u:p:i:t:o",["help","username","password","ifile","ofile"])
+		opts, args = getopt.getopt(argv,"h:u:p:i:t:d:o",["help","username","password","ifile","ofile"])
 	except getopt.GetoptError:
 		printUsage()
 		sys.exit(2)
@@ -362,9 +366,15 @@ def main(argv):
 			password = arg
 		elif opt in ("-t", "--threads"):
 			threads = arg
+		elif opt in ("-d", "--directory"):
+			directory = arg
 
 	if len(password) > 0 and len(username) >0 and len(url)>0:
-		ch = Chomyk(username,password,threads)
+		try:
+			os.makedirs(directory)
+		except OSError:
+			pass
+		ch = Chomyk(username,password,threads,directory)
 		ch.dl(str(url))
 	else:
 		printUsage()

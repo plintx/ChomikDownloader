@@ -1,15 +1,17 @@
 # Chomyk / ChomikDownloader
 
-Skrypt został napisany w Pythonie 3.5.2.
+
+Skrypt został napisany w Pythonie 3.5.2 i służy do pobierania plików z Chomikuj.pl
 Pliki pobierane są do katalogu, w którym znajduje się skrypt.
 
-Dostępne są parametry:  
- * -u użytkownik  
- * -p hasło  
- * -i plik/folder do pobrania  
- * -t maksymalna ilość wątków (domyślnie 5)  
+Dostępne parametry:  
+ * __-u__ użytkownik  
+ * __-p__ hasło  
+ * __-i__ plik/folder do pobrania  
+ * __-d__ ścieżka pobierania plików (domyślnie katalog skryptu)  
+ * __-t__ maksymalna ilość wątków (domyślnie 5)  
 
 Przykład: _./chomyk.py -u mojchomik -p mojehaslo -i http://chomikuj.pl/mojchomik/filmy_
 
 
-![Screenshot](https://github.com/blackberrymamba/ChomikDownloader/screenshot-001.png)
+![Screenshot](https://raw.githubusercontent.com/blackberrymamba/ChomikDownloader/master/screenshot-001.png)
