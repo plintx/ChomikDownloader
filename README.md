@@ -12,4 +12,4 @@ Dostępne są parametry:
 Przykład: _./chomyk.py -u mojchomik -p mojehaslo -i http://chomikuj.pl/mojchomik/filmy_
 
 
-![Screenshot](https://github.com/blackberrymamba/ChomikDownloader/screenshot-001.png)
+![Screenshot](https://raw.githubusercontent.com/blackberrymamba/ChomikDownloader/master/screenshot-001.png)
