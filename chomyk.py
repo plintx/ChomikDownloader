@@ -3,7 +3,6 @@
 
 import sys
 import getopt
-import logging
 import hashlib
 import requests
 import os
@@ -68,13 +67,13 @@ class Item(threading.Thread):
 class Chomyk:
 
 	def __init__(self, username, password,maxThreads,directory):
-		self.logger = logging.getLogger(__name__)
 		self.isLogged = True
 		self.lastLoginTime = 0
 		self.hamsterId = 0
 		self.token = ''
 		self.items = 0
 		self.threads = []
+		self.accBalance = None
 		self.maxThreads = int(maxThreads)
 		self.directory = directory
 		self.threadsChecker = None
@@ -82,7 +81,6 @@ class Chomyk:
 		self.username = username
 		self.password = hashlib.md5(password.encode("utf-8")).hexdigest()
 		self.cls()
-		self.logger.info("Obiekt zainicjowany")
 		self.checkThreads()
 		self.login()
 		
@@ -141,12 +139,8 @@ class Chomyk:
 			"Host": "box.chomikuj.pl",
 			}
 
-		self.logger.info("Post data url:" + url)
-		self.logger.info("Post data body:" + body)
-
 		response = requests.post(url, data=body, headers=headers)
-
-		self.logger.info("Response:" + str(response.content))
+		
 		self.parseResponse(response.content)
 
 	def dl(self, url):
@@ -181,7 +175,6 @@ class Chomyk:
 
 		xmlDoc = """<?xml version="1.0" encoding="UTF-8"?>"""
 		xmlDoc += et.tostring(root, encoding='unicode', method='xml')
-		self.logger.info("Post: "+ xmlDoc)
 
 		dts = {
 			"body": xmlDoc,
@@ -291,6 +284,7 @@ class Chomyk:
 		self.printline (3, 'Maks wątków: ' + str(self.maxThreads))
 		respTree = et.fromstring(resp)
 		#Autoryzacja
+		
 		for dts in respTree.findall(".//{http://chomikuj.pl/}AuthResult/{http://chomikuj.pl}status"):
 			status = dts.text
 			if status.upper() == "OK":
@@ -306,8 +300,10 @@ class Chomyk:
 
 		#Pobieranie urli plikow
 
-
-
+		accBalance = respTree.find(".//{http://chomikuj.pl/}DownloadResult/{http://chomikuj.pl}accountBalance/{http://chomikuj.pl/}transfer/{http://chomikuj.pl/}extra")
+		if accBalance is not None:
+			self.accBalance = accBalance.text
+			
 		for dts in respTree.findall(".//{http://chomikuj.pl/}DownloadResult/{http://chomikuj.pl}status"):
 			status = dts.text
 			if status.upper() == "OK":
@@ -322,11 +318,16 @@ class Chomyk:
 					if url.text == None:
 						agreementInfo = dlfile.find("{http://chomikuj.pl/}agreementInfo/{http://chomikuj.pl/}AgreementInfo/{http://chomikuj.pl/}name").text
 						costInfo = dlfile.find("{http://chomikuj.pl/}agreementInfo/{http://chomikuj.pl/}AgreementInfo/{http://chomikuj.pl/}cost")
+						
+						
 						if costInfo.text == None:
 							cost = 0
 						else:
 							cost = costInfo.text
-						self.dl_step_2(idx, agreementInfo,cost)
+						if int(self.accBalance) >= int(cost):
+							self.dl_step_2(idx, agreementInfo,cost)
+						else:
+							self.printline (2,"Błąd: brak wystarczającego limitu transferu")
 					else:
 						self.items = self.items +1
 						it = Item()
@@ -368,8 +369,9 @@ def main(argv):
 			threads = arg
 		elif opt in ("-d", "--directory"):
 			directory = arg
-
+		
 	if len(password) > 0 and len(username) >0 and len(url)>0:
+		
 		try:
 			os.makedirs(directory)
 		except OSError:
