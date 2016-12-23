@@ -115,7 +115,7 @@ class Chomyk:
 		if threadsDone == self.totalItems and threadsDone > 0 and threadsOpen == 0:
 			self.threadsChecker.cancel()
 			self.cls()
-			print("\r\nWszystkie pliki zostały pobrane")
+			print("\r\nWszystkie pliki zostaly pobrane")
 			print("\r")
 		else:
 			self.threadsChecker = threading.Timer(1.0, self.checkThreads)
@@ -281,7 +281,7 @@ class Chomyk:
 					self.add_items(subroot, text)
 
 	def parseResponse(self, resp):
-		self.printline (3, 'Maks wątków: ' + str(self.maxThreads))
+		self.printline (3, 'Maks watkow: ' + str(self.maxThreads))
 		respTree = et.fromstring(resp)
 		#Autoryzacja
 		
@@ -310,7 +310,7 @@ class Chomyk:
 				dlfiles = respTree.findall(".//{http://chomikuj.pl/}files/{http://chomikuj.pl/}FileEntry")
 				if (len(dlfiles) > self.totalItems):
 					self.totalItems = len(dlfiles)
-					self.printline (2,"Plików: " + str(self.totalItems))
+					self.printline (2,"Plikow: " + str(self.totalItems))
 				for dlfile in dlfiles:
 					url = dlfile.find('{http://chomikuj.pl/}url')
 					idx = dlfile.find('{http://chomikuj.pl/}id').text
@@ -327,7 +327,7 @@ class Chomyk:
 						if int(self.accBalance) >= int(cost):
 							self.dl_step_2(idx, agreementInfo,cost)
 						else:
-							self.printline (2,"Błąd: brak wystarczającego limitu transferu")
+							self.printline (2,"Blad: brak wystarczajacego limitu transferu")
 					else:
 						self.items = self.items +1
 						it = Item()
