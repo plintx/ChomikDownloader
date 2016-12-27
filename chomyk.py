@@ -8,10 +8,11 @@ import requests
 import os
 import time
 import threading
+import re
 
 from xml.etree import ElementTree as et
 from collections import OrderedDict
-
+from getpass import getpass
 
 class Item(threading.Thread):
 
@@ -92,7 +93,6 @@ class Chomyk:
 		sys.stdout.flush()
 		
 	def checkThreads(self):
-
 		threadsInprogress = 0
 		threadsOpen = 0
 		threadsDone = 0
@@ -111,7 +111,6 @@ class Chomyk:
 			if it.status == 'done':
 				threadsDone += 1
 
-
 		if threadsDone == self.totalItems and threadsDone > 0 and threadsOpen == 0:
 			self.threadsChecker.cancel()
 			self.cls()
@@ -120,10 +119,7 @@ class Chomyk:
 		else:
 			self.threadsChecker = threading.Timer(1.0, self.checkThreads)
 			self.threadsChecker.start()
-
-
-
-
+			
 	def postData(self, postVars):
 		url = "http://box.chomikuj.pl/services/ChomikBoxService.svc"
 		body = postVars.get("body")
@@ -140,15 +136,16 @@ class Chomyk:
 			}
 
 		response = requests.post(url, data=body, headers=headers)
-		
 		self.parseResponse(response.content)
 
 	def dl(self, url):
-		shortUrl = url[18:]
+		fileUrl = re.search('[http|https]://chomikuj.pl(.*)', url).group(1)
+		
 		rootParams = {
 			"xmlns:s": "http://schemas.xmlsoap.org/soap/envelope/",
 			"s:encodingStyle": "http://schemas.xmlsoap.org/soap/encoding/"
 			}
+
 		root = et.Element('s:Envelope', rootParams)
 
 		body = et.SubElement(root, "s:Body")
@@ -166,7 +163,7 @@ class Chomyk:
 			("disposition", "download"),
 			("list",  [
 					("DownloadReqEntry", [
-						("id", shortUrl),
+						("id", fileUrl),
 					])
 				])
 			])
@@ -283,8 +280,8 @@ class Chomyk:
 	def parseResponse(self, resp):
 		self.printline (3, 'Maks watkow: ' + str(self.maxThreads))
 		respTree = et.fromstring(resp)
-		#Autoryzacja
 		
+		#Autoryzacja
 		for dts in respTree.findall(".//{http://chomikuj.pl/}AuthResult/{http://chomikuj.pl}status"):
 			status = dts.text
 			if status.upper() == "OK":
@@ -299,7 +296,6 @@ class Chomyk:
 				 self.printline (1,"Login: " + status)
 
 		#Pobieranie urli plikow
-
 		accBalance = respTree.find(".//{http://chomikuj.pl/}DownloadResult/{http://chomikuj.pl}accountBalance/{http://chomikuj.pl/}transfer/{http://chomikuj.pl/}extra")
 		if accBalance is not None:
 			self.accBalance = accBalance.text
@@ -339,7 +335,6 @@ class Chomyk:
 						it.daemon = True
 						self.threads.append(it)
 						
-
 def main(argv):
 	url = ''
 	output = ''
@@ -359,6 +354,7 @@ def main(argv):
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			url = arg
+			
 		elif opt in ("-o", "--ofile"):
 			output = arg
 		elif opt in ("-u", "--username"):
@@ -369,9 +365,17 @@ def main(argv):
 			threads = arg
 		elif opt in ("-d", "--directory"):
 			directory = arg
-		
+			
+	if len(username) == 0:
+		username = input("Login: ")
+			
+	if len(password) == 0:
+		password = getpass("Haslo: ")
+
+	if len(url) == 0:
+		url = input("URL: ")
+			
 	if len(password) > 0 and len(username) >0 and len(url)>0:
-		
 		try:
 			os.makedirs(directory)
 		except OSError:
