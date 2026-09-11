@@ -386,7 +386,7 @@ def main(argv):
 		printUsage()
 
 def printUsage():
-	print ('chomyk.py --u username --p password --i <url>')
+	print ('chomyk.py -u username -p password -i <url>')
 	sys.exit(2)
 
 if __name__ == "__main__":
