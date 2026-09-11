@@ -7,6 +7,7 @@ Dostępne parametry:
  * __-p__ hasło  
  * __-i__ plik/folder do pobrania  
  * __-d__ ścieżka pobierania plików (domyślnie katalog skryptu)  
+ * __-o__ katalog docelowy do zapisu plików (domyślnie katalog skryptu)
  * __-t__ maksymalna ilość wątków (domyślnie 5)  
 
 Przykład: _./chomyk.py -u mojchomik -p mojehaslo -i http://chomikuj.pl/mojchomik/filmy_

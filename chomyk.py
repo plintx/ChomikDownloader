@@ -337,13 +337,12 @@ class Chomyk:
 						
 def main(argv):
 	url = ''
-	output = ''
 	username = ''
 	password = ''
 	threads = 5
 	directory = os.getcwd()+"/"
 	try:
-		opts, args = getopt.getopt(argv,"h:u:p:i:t:d:o",["help","username","password","ifile","ofile"])
+		opts, args = getopt.getopt(argv,"h:u:p:i:t:d:o:",["help","username","password","ifile","output","directory"])
 	except getopt.GetoptError:
 		printUsage()
 		sys.exit(2)
@@ -354,9 +353,8 @@ def main(argv):
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			url = arg
-			
-		elif opt in ("-o", "--ofile"):
-			output = arg
+		elif opt in ("-o", "--output"):
+			directory = arg if arg.endswith("/") else arg + "/"
 		elif opt in ("-u", "--username"):
 			username = arg
 		elif opt in ("-p", "--password"):
@@ -386,7 +384,7 @@ def main(argv):
 		printUsage()
 
 def printUsage():
-	print ('chomyk.py -u username -p password -i <url>')
+	print ('chomyk.py -u username -p password -i <url> [-o output_dir] [-t threads]')
 	sys.exit(2)
 
 if __name__ == "__main__":
